@@ -1,0 +1,145 @@
+@import "tailwindcss";
+
+@layer base {
+  html, body {
+    overflow-x: hidden;
+    max-width: 100vw;
+    width: 100%;
+    margin: 0;
+    padding: 0;
+  }
+  body {
+    font-family: 'Plus Jakarta Sans', sans-serif;
+  }
+  h1, h2, h3, h4, .font-heading {
+    font-family: 'Outfit', sans-serif;
+  }
+}
+
+@keyframes marquee60s {
+  0% {
+    transform: translateX(0%);
+  }
+  100% {
+    transform: translateX(-50%);
+  }
+}
+
+.animate-marquee-60s {
+  display: flex;
+  width: max-content;
+  animation: marquee60s 60s linear infinite;
+}
+
+.animate-marquee-60s:hover {
+  animation-play-state: paused;
+}
+
+/* 3D card tilt and water glow effects */
+.card-3d {
+  transition: transform 0.3s cubic-bezier(0.34, 1.56, 0.64, 1), box-shadow 0.3s ease;
+}
+
+.card-3d:hover {
+  transform: translateY(-4px) scale(1.01);
+  box-shadow: 0 20px 30px -10px rgba(6, 182, 212, 0.2), 0 10px 15px -5px rgba(15, 23, 42, 0.08);
+}
+
+/* Print Optimization for A4 Landscape (Matriks Jadwal) and A4 Portrait (Rapor Member) */
+@media print {
+  html, body {
+    background: #ffffff !important;
+    color: #0f172a !important;
+    font-size: 10pt !important;
+    margin: 0 !important;
+    padding: 0 !important;
+    height: auto !important;
+    overflow: visible !important;
+  }
+
+  /* Force background colors to show when printed */
+  *, *:before, *:after {
+    -webkit-print-color-adjust: exact !important;
+    print-color-adjust: exact !important;
+    color-adjust: exact !important;
+  }
+
+  /* Hide navigation, buttons, non-printable elements */
+  nav, .no-print, header, footer:not(.print-footer), .print-hidden, button, .modal-backdrop {
+    display: none !important;
+  }
+
+  /* When printing any modal, hide the main page sections completely */
+  body.print-active main,
+  body.print-landscape main,
+  body.print-portrait main,
+  body.printing-schedule main,
+  body.printing-rapor main {
+    display: none !important;
+  }
+
+  /* Hide other modals if printing one modal */
+  body.printing-schedule .modal-dialog:not(.print-schedule-target),
+  body.printing-rapor .modal-dialog:not(.print-rapor-target) {
+    display: none !important;
+  }
+
+  /* Remove fixed/absolute positioning bottlenecks on modal overlays during print */
+  .fixed, .overflow-y-auto, .max-h-\[94vh\], .max-h-\[96vh\], .max-h-\[92vh\], .max-h-\[90vh\], .h-\[94vh\] {
+    position: static !important;
+    overflow: visible !important;
+    max-height: none !important;
+    height: auto !important;
+    width: 100% !important;
+    background: #ffffff !important;
+    padding: 0 !important;
+    margin: 0 !important;
+    border: none !important;
+    box-shadow: none !important;
+  }
+
+  /* Target specific print container */
+  .printable-area, .printable-document {
+    display: block !important;
+    width: 100% !important;
+    margin: 0 !important;
+    padding: 0 !important;
+    page-break-inside: avoid !important;
+    background: #ffffff !important;
+  }
+
+  /* Page margins & auto size */
+  @page {
+    size: auto;
+    margin: 8mm;
+  }
+
+  body.print-landscape {
+    page: print-landscape;
+  }
+
+  body.print-portrait {
+    page: print-portrait;
+  }
+}
+
+@page print-landscape {
+  size: A4 landscape;
+  margin: 6mm;
+}
+
+@page print-portrait {
+  size: A4 portrait;
+  margin: 8mm;
+}
+
+/* Cegah warna latar belakang kuning/biru autofill bawaan browser */
+input:-webkit-autofill,
+input:-webkit-autofill:hover,
+input:-webkit-autofill:focus,
+input:-webkit-autofill:active {
+  -webkit-box-shadow: 0 0 0 30px white inset !important;
+  -webkit-text-fill-color: #0f172a !important;
+  transition: background-color 5000s ease-in-out 0s;
+}
+

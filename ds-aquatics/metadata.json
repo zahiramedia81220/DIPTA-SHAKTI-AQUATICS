@@ -1,0 +1,8 @@
+{
+  "name": "DS Aquatics",
+  "description": "Aplikasi landing page dan manajemen klub renang DS AQUATICS dengan matriks jadwal latihan, pendaftaran, panel admin, absensi, dan rapor member.",
+  "requestFramePermissions": [],
+  "majorCapabilities": [
+    "MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"
+  ]
+}

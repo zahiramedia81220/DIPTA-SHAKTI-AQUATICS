@@ -1,0 +1,970 @@
+{
+  "entities": {
+    "Member": {
+      "title": "Member",
+      "description": "Club member profile and registration record",
+      "type": "object",
+      "properties": {
+        "id": {
+          "type": "string",
+          "maxLength": 128
+        },
+        "fullName": {
+          "type": "string",
+          "maxLength": 120
+        },
+        "ageOrDob": {
+          "type": "string",
+          "maxLength": 50
+        },
+        "gender": {
+          "type": "string",
+          "enum": [
+            "Laki-laki",
+            "Perempuan"
+          ]
+        },
+        "school": {
+          "type": "string",
+          "maxLength": 120
+        },
+        "currentLevel": {
+          "type": "string",
+          "enum": [
+            "Pemula",
+            "Menengah",
+            "Lanjutan"
+          ]
+        },
+        "goal": {
+          "type": "string",
+          "maxLength": 250
+        },
+        "preferredDay": {
+          "type": "string",
+          "maxLength": 20
+        },
+        "preferredTime": {
+          "type": "string",
+          "maxLength": 50
+        },
+        "location": {
+          "type": "string",
+          "maxLength": 150
+        },
+        "specialConditions": {
+          "type": "string",
+          "maxLength": 300
+        },
+        "whatsapp": {
+          "type": "string",
+          "maxLength": 30
+        },
+        "parentName": {
+          "type": "string",
+          "maxLength": 120
+        },
+        "address": {
+          "type": "string",
+          "maxLength": 300
+        },
+        "selectedPackageId": {
+          "type": "string",
+          "maxLength": 128
+        },
+        "status": {
+          "type": "string",
+          "enum": [
+            "Verifikasi",
+            "Aktif",
+            "Tidak Aktif",
+            "Ditolak",
+            "Pending",
+            "Nonaktif",
+            "Cuti",
+            "Alumni"
+          ]
+        },
+        "registrationDate": {
+          "type": "string",
+          "maxLength": 50
+        },
+        "totalSessionsAllowed": {
+          "type": "number"
+        },
+        "attendedSessions": {
+          "type": "number"
+        },
+        "notes": {
+          "type": "string",
+          "maxLength": 500
+        },
+        "email": {
+          "type": "string",
+          "maxLength": 120
+        },
+        "lastAttendanceRequestId": {
+          "type": "string",
+          "maxLength": 128
+        }
+      },
+      "required": [
+        "id",
+        "fullName",
+        "whatsapp",
+        "status"
+      ]
+    },
+    "ScheduleSlot": {
+      "title": "ScheduleSlot",
+      "description": "Weekly training schedule slot",
+      "type": "object",
+      "properties": {
+        "id": {
+          "type": "string",
+          "maxLength": 128
+        },
+        "timeRange": {
+          "type": "string",
+          "maxLength": 50
+        },
+        "day": {
+          "type": "string",
+          "maxLength": 20
+        },
+        "coach": {
+          "type": "string",
+          "maxLength": 100
+        },
+        "status": {
+          "type": "string",
+          "enum": [
+            "tersedia",
+            "hadir",
+            "off"
+          ]
+        },
+        "participants": {
+          "type": "array"
+        },
+        "isGroup": {
+          "type": "boolean"
+        },
+        "location": {
+          "type": "string",
+          "maxLength": 150
+        },
+        "notes": {
+          "type": "string",
+          "maxLength": 300
+        }
+      },
+      "required": [
+        "id",
+        "timeRange",
+        "day",
+        "coach",
+        "status"
+      ]
+    },
+    "ScheduleRequest": {
+      "title": "ScheduleRequest",
+      "description": "Member or prospective member schedule request",
+      "type": "object",
+      "properties": {
+        "id": {
+          "type": "string",
+          "maxLength": 128
+        },
+        "memberId": {
+          "type": "string",
+          "maxLength": 128
+        },
+        "memberName": {
+          "type": "string",
+          "maxLength": 120
+        },
+        "whatsapp": {
+          "type": "string",
+          "maxLength": 30
+        },
+        "day": {
+          "type": "string",
+          "maxLength": 20
+        },
+        "timeRange": {
+          "type": "string",
+          "maxLength": 50
+        },
+        "location": {
+          "type": "string",
+          "maxLength": 150
+        },
+        "packageId": {
+          "type": "string",
+          "maxLength": 128
+        },
+        "status": {
+          "type": "string",
+          "maxLength": 30
+        },
+        "coachNote": {
+          "type": "string",
+          "maxLength": 500
+        },
+        "adminNotes": {
+          "type": "string",
+          "maxLength": 500
+        },
+        "createdAt": {
+          "type": "string",
+          "maxLength": 50
+        },
+        "requestDate": {
+          "type": "string",
+          "maxLength": 50
+        },
+        "attended": {
+          "type": "boolean"
+        }
+      },
+      "required": [
+        "id",
+        "memberName",
+        "whatsapp",
+        "day",
+        "timeRange",
+        "status"
+      ]
+    },
+    "ClubSettings": {
+      "title": "ClubSettings",
+      "description": "Global configuration and metadata for DS Aquatics club",
+      "type": "object",
+      "properties": {
+        "clubName": {
+          "type": "string",
+          "maxLength": 100
+        },
+        "slogan": {
+          "type": "string",
+          "maxLength": 200
+        },
+        "hookText": {
+          "type": "string",
+          "maxLength": 300
+        },
+        "logoUrl": {
+          "type": "string",
+          "maxLength": 1000000
+        },
+        "heroBgUrl": {
+          "type": "string",
+          "maxLength": 1000000
+        },
+        "phoneWa": {
+          "type": "string",
+          "maxLength": 30
+        },
+        "instagramUrl": {
+          "type": "string",
+          "maxLength": 200
+        },
+        "lestarindoName": {
+          "type": "string",
+          "maxLength": 150
+        },
+        "lestarindoAddress": {
+          "type": "string",
+          "maxLength": 300
+        },
+        "frontOneName": {
+          "type": "string",
+          "maxLength": 150
+        },
+        "frontOneAddress": {
+          "type": "string",
+          "maxLength": 300
+        },
+        "paymentBri": {
+          "type": "string",
+          "maxLength": 50
+        },
+        "paymentBca": {
+          "type": "string",
+          "maxLength": 50
+        },
+        "paymentMandiri": {
+          "type": "string",
+          "maxLength": 50
+        },
+        "paymentAccountName": {
+          "type": "string",
+          "maxLength": 100
+        }
+      }
+    },
+    "PricePackage": {
+      "title": "PricePackage",
+      "description": "Training package pricing tier",
+      "type": "object",
+      "properties": {
+        "id": {
+          "type": "string",
+          "maxLength": 128
+        },
+        "category": {
+          "type": "string",
+          "enum": [
+            "reguler",
+            "privat",
+            "group_prestasi"
+          ]
+        },
+        "title": {
+          "type": "string",
+          "maxLength": 120
+        },
+        "subtitle": {
+          "type": "string",
+          "maxLength": 200
+        },
+        "badge": {
+          "type": "string",
+          "maxLength": 50
+        },
+        "maxPeople": {
+          "type": "string",
+          "maxLength": 50
+        },
+        "pricingTiers": {
+          "type": "array"
+        },
+        "features": {
+          "type": "array"
+        },
+        "note": {
+          "type": "string",
+          "maxLength": 300
+        },
+        "accentColor": {
+          "type": "string",
+          "maxLength": 50
+        }
+      },
+      "required": [
+        "id",
+        "category",
+        "title"
+      ]
+    },
+    "DocumentationItem": {
+      "title": "DocumentationItem",
+      "description": "Club event and training photos",
+      "type": "object",
+      "properties": {
+        "id": {
+          "type": "string",
+          "maxLength": 128
+        },
+        "title": {
+          "type": "string",
+          "maxLength": 150
+        },
+        "description": {
+          "type": "string",
+          "maxLength": 500
+        },
+        "imageUrl": {
+          "type": "string",
+          "maxLength": 1000000
+        },
+        "date": {
+          "type": "string",
+          "maxLength": 50
+        }
+      },
+      "required": [
+        "id",
+        "title",
+        "imageUrl"
+      ]
+    },
+    "TestimonialItem": {
+      "title": "TestimonialItem",
+      "description": "Parent and swimmer testimonials",
+      "type": "object",
+      "properties": {
+        "id": {
+          "type": "string",
+          "maxLength": 128
+        },
+        "name": {
+          "type": "string",
+          "maxLength": 120
+        },
+        "role": {
+          "type": "string",
+          "maxLength": 100
+        },
+        "avatarUrl": {
+          "type": "string",
+          "maxLength": 1000000
+        },
+        "quote": {
+          "type": "string",
+          "maxLength": 1000
+        },
+        "rating": {
+          "type": "number"
+        }
+      },
+      "required": [
+        "id",
+        "name",
+        "quote",
+        "rating"
+      ]
+    },
+    "SwimGearProduct": {
+      "title": "SwimGearProduct",
+      "description": "Swim gear and accessories item",
+      "type": "object",
+      "properties": {
+        "id": {
+          "type": "string",
+          "maxLength": 128
+        },
+        "name": {
+          "type": "string",
+          "maxLength": 150
+        },
+        "category": {
+          "type": "string",
+          "maxLength": 80
+        },
+        "price": {
+          "type": "number"
+        },
+        "formattedPrice": {
+          "type": "string",
+          "maxLength": 50
+        },
+        "imageUrl": {
+          "type": "string",
+          "maxLength": 1000000
+        },
+        "description": {
+          "type": "string",
+          "maxLength": 500
+        },
+        "stockStatus": {
+          "type": "string",
+          "enum": [
+            "Tersedia",
+            "Pre-Order",
+            "Habis"
+          ]
+        },
+        "specifications": {
+          "type": "array"
+        }
+      },
+      "required": [
+        "id",
+        "name",
+        "price",
+        "stockStatus"
+      ]
+    },
+    "MemberReport": {
+      "title": "MemberReport",
+      "description": "Swimmer assessment report card",
+      "type": "object",
+      "properties": {
+        "id": {
+          "type": "string",
+          "maxLength": 128
+        },
+        "memberId": {
+          "type": "string",
+          "maxLength": 128
+        },
+        "memberName": {
+          "type": "string",
+          "maxLength": 120
+        },
+        "period": {
+          "type": "string",
+          "maxLength": 100
+        },
+        "evaluationDate": {
+          "type": "string",
+          "maxLength": 50
+        },
+        "coachName": {
+          "type": "string",
+          "maxLength": 100
+        },
+        "currentLevel": {
+          "type": "string",
+          "maxLength": 50
+        },
+        "grades": {
+          "type": "array"
+        },
+        "averageScore": {
+          "type": "number"
+        },
+        "overallPredicate": {
+          "type": "string",
+          "maxLength": 50
+        },
+        "coachEvaluation": {
+          "type": "string",
+          "maxLength": 1000
+        },
+        "recommendations": {
+          "type": "string",
+          "maxLength": 1000
+        },
+        "attendanceSummary": {
+          "type": "string",
+          "maxLength": 200
+        }
+      },
+      "required": [
+        "id",
+        "memberId",
+        "memberName",
+        "period"
+      ]
+    },
+    "AttendanceRecord": {
+      "title": "AttendanceRecord",
+      "description": "Training attendance entry",
+      "type": "object",
+      "properties": {
+        "id": {
+          "type": "string",
+          "maxLength": 128
+        },
+        "memberId": {
+          "type": "string",
+          "maxLength": 128
+        },
+        "memberName": {
+          "type": "string",
+          "maxLength": 120
+        },
+        "date": {
+          "type": "string",
+          "maxLength": 50
+        },
+        "timeRange": {
+          "type": "string",
+          "maxLength": 50
+        },
+        "day": {
+          "type": "string",
+          "maxLength": 20
+        },
+        "location": {
+          "type": "string",
+          "maxLength": 150
+        },
+        "coach": {
+          "type": "string",
+          "maxLength": 100
+        },
+        "status": {
+          "type": "string",
+          "enum": [
+            "Hadir",
+            "Izin",
+            "Alpha",
+            "Admin Libur"
+          ]
+        },
+        "notes": {
+          "type": "string",
+          "maxLength": 300
+        }
+      },
+      "required": [
+        "id",
+        "memberId",
+        "memberName",
+        "date",
+        "status"
+      ]
+    },
+    "MemberAccount": {
+      "title": "MemberAccount",
+      "description": "Club member login credentials",
+      "type": "object",
+      "properties": {
+        "id": {
+          "type": "string",
+          "maxLength": 128
+        },
+        "memberId": {
+          "type": "string",
+          "maxLength": 128
+        },
+        "fullName": {
+          "type": "string",
+          "maxLength": 120
+        },
+        "email": {
+          "type": "string",
+          "maxLength": 120
+        },
+        "password": {
+          "type": "string",
+          "maxLength": 100
+        },
+        "whatsapp": {
+          "type": "string",
+          "maxLength": 30
+        },
+        "status": {
+          "type": "string",
+          "enum": [
+            "Aktif",
+            "Nonaktif"
+          ]
+        },
+        "createdAt": {
+          "type": "string",
+          "maxLength": 50
+        },
+        "notes": {
+          "type": "string",
+          "maxLength": 300
+        },
+        "authUid": {
+          "type": "string",
+          "maxLength": 128
+        },
+        "authSyncError": {
+          "type": "string",
+          "maxLength": 300
+        }
+      },
+      "required": [
+        "id",
+        "fullName",
+        "email",
+        "status"
+      ]
+    },
+    "EvaluationCriterion": {
+      "title": "EvaluationCriterion",
+      "description": "Assessment criteria for reports",
+      "type": "object",
+      "properties": {
+        "id": {
+          "type": "string",
+          "maxLength": 128
+        },
+        "name": {
+          "type": "string",
+          "maxLength": 100
+        },
+        "category": {
+          "type": "string",
+          "maxLength": 50
+        },
+        "description": {
+          "type": "string",
+          "maxLength": 300
+        }
+      },
+      "required": [
+        "id",
+        "name",
+        "category"
+      ]
+    },
+    "ClubInvoice": {
+      "title": "ClubInvoice",
+      "description": "Tuition and club transaction invoices",
+      "type": "object",
+      "properties": {
+        "id": {
+          "type": "string",
+          "maxLength": 128
+        },
+        "invoiceNumber": {
+          "type": "string",
+          "maxLength": 50
+        },
+        "memberId": {
+          "type": "string",
+          "maxLength": 128
+        },
+        "memberName": {
+          "type": "string",
+          "maxLength": 120
+        },
+        "packageTitle": {
+          "type": "string",
+          "maxLength": 150
+        },
+        "amount": {
+          "type": "number"
+        },
+        "date": {
+          "type": "string",
+          "maxLength": 50
+        },
+        "status": {
+          "type": "string",
+          "maxLength": 50
+        },
+        "method": {
+          "type": "string",
+          "maxLength": 50
+        },
+        "notes": {
+          "type": "string",
+          "maxLength": 300
+        }
+      },
+      "required": [
+        "id",
+        "invoiceNumber",
+        "memberName",
+        "amount",
+        "status"
+      ]
+    },
+    "MemberAuth": {
+      "title": "MemberAuth",
+      "description": "Pemetaan uid Firebase Auth ke member (ditulis admin saat sinkronisasi akun)",
+      "type": "object",
+      "properties": {
+        "uid": {
+          "type": "string"
+        },
+        "email": {
+          "type": "string"
+        },
+        "memberId": {
+          "type": "string"
+        },
+        "accountId": {
+          "type": "string"
+        },
+        "fullName": {
+          "type": "string"
+        },
+        "status": {
+          "type": "string",
+          "enum": [
+            "Aktif",
+            "Nonaktif"
+          ]
+        }
+      },
+      "required": [
+        "uid",
+        "email",
+        "memberId",
+        "accountId",
+        "status"
+      ]
+    },
+    "LoginLog": {
+      "title": "LoginLog",
+      "description": "Riwayat login/logout/login gagal (append-only)",
+      "type": "object",
+      "properties": {
+        "uid": {
+          "type": "string"
+        },
+        "email": {
+          "type": "string",
+          "maxLength": 120
+        },
+        "name": {
+          "type": "string",
+          "maxLength": 120
+        },
+        "role": {
+          "type": "string",
+          "enum": [
+            "admin",
+            "member",
+            "unknown"
+          ]
+        },
+        "event": {
+          "type": "string",
+          "enum": [
+            "login",
+            "logout",
+            "auto_logout",
+            "login_failed"
+          ]
+        },
+        "method": {
+          "type": "string",
+          "enum": [
+            "google",
+            "password"
+          ]
+        },
+        "reason": {
+          "type": "string",
+          "maxLength": 300
+        },
+        "device": {
+          "type": "string",
+          "maxLength": 120
+        },
+        "createdAt": {
+          "type": "string",
+          "format": "date-time"
+        }
+      },
+      "required": [
+        "email",
+        "role",
+        "event",
+        "device",
+        "createdAt"
+      ]
+    },
+    "Presence": {
+      "title": "Presence",
+      "description": "Status online pengguna (heartbeat 60 detik)",
+      "type": "object",
+      "properties": {
+        "uid": {
+          "type": "string"
+        },
+        "email": {
+          "type": "string"
+        },
+        "name": {
+          "type": "string"
+        },
+        "role": {
+          "type": "string",
+          "enum": [
+            "admin",
+            "member"
+          ]
+        },
+        "memberId": {
+          "type": "string"
+        },
+        "state": {
+          "type": "string",
+          "enum": [
+            "online",
+            "offline"
+          ]
+        },
+        "lastSeen": {
+          "type": "string",
+          "format": "date-time"
+        },
+        "device": {
+          "type": "string"
+        }
+      },
+      "required": [
+        "uid",
+        "role",
+        "state",
+        "lastSeen"
+      ]
+    },
+    "PublicStats": {
+      "title": "PublicStats",
+      "description": "Statistik publik halaman depan",
+      "type": "object",
+      "properties": {
+        "activeMembers": {
+          "type": "number"
+        },
+        "updatedAt": {
+          "type": "string"
+        }
+      }
+    }
+  },
+  "firestore": {
+    "/members/{memberId}": {
+      "schema": "Member",
+      "description": "Registered club members data"
+    },
+    "/memberAccounts/{accId}": {
+      "schema": "MemberAccount",
+      "description": "Member authentication credentials"
+    },
+    "/scheduleSlots/{slotId}": {
+      "schema": "ScheduleSlot",
+      "description": "Weekly training schedule slots"
+    },
+    "/scheduleRequests/{requestId}": {
+      "schema": "ScheduleRequest",
+      "description": "Training schedule requests by members or applicants"
+    },
+    "/clubSettings/{settingId}": {
+      "schema": "ClubSettings",
+      "description": "Club profile, hero, logo, contact, and payment settings"
+    },
+    "/pricePackages/{packageId}": {
+      "schema": "PricePackage",
+      "description": "Training packages and pricing tiers"
+    },
+    "/documentation/{docId}": {
+      "schema": "DocumentationItem",
+      "description": "Photo documentation of swimming club"
+    },
+    "/testimonials/{testiId}": {
+      "schema": "TestimonialItem",
+      "description": "Member and parent testimonials"
+    },
+    "/swimGear/{gearId}": {
+      "schema": "SwimGearProduct",
+      "description": "Swimming equipment and merchandise"
+    },
+    "/memberReports/{reportId}": {
+      "schema": "MemberReport",
+      "description": "Member assessment and progress report cards"
+    },
+    "/attendanceRecords/{recordId}": {
+      "schema": "AttendanceRecord",
+      "description": "Session attendance history"
+    },
+    "/evaluationCriteria/{critId}": {
+      "schema": "EvaluationCriterion",
+      "description": "Evaluation rubrics and criteria"
+    },
+    "/clubInvoices/{invoiceId}": {
+      "schema": "ClubInvoice",
+      "description": "Club tuition and finance records"
+    },
+    "/memberAuth/{uid}": {
+      "schema": "MemberAuth",
+      "description": "Firebase Auth uid -> member mapping (admin writes, owner reads)"
+    },
+    "/loginLogs/{logId}": {
+      "schema": "LoginLog",
+      "description": "Login history, append-only, admin read"
+    },
+    "/presence/{uid}": {
+      "schema": "Presence",
+      "description": "Online status heartbeat, owner writes, admin reads"
+    },
+    "/publicStats/{id}": {
+      "schema": "PublicStats",
+      "description": "Public stats, admin writes"
+    }
+  }
+}

@@ -1,0 +1,229 @@
+rules_version = '2';
+
+// DS AQUATICS — Firestore Security Rules
+// Peran:
+//  - Admin  : login Firebase Auth (email terverifikasi, mis. Google) dengan email di daftar isAdmin()
+//  - Member : login Firebase Auth email/password; terdaftar di /memberAuth/{uid} (ditulis admin)
+//  - Tamu   : tidak login; hanya baca konten publik & kirim pendaftaran
+service cloud.firestore {
+  match /databases/{database}/documents {
+
+    function signedIn() {
+      return request.auth != null;
+    }
+
+    // Samakan dengan ADMIN_ACCOUNTS di src/context/AppContext.tsx
+    function isAdmin() {
+      return signedIn()
+        && request.auth.token.email_verified == true
+        && request.auth.token.email.lower() in [
+          'alisastore.ceria@gmail.com',
+          'dewisetyaningsih17@gmail.com',
+          'ewm.dsn@gmail.com',
+          'berlianbusinesspartner@gmail.com'
+        ];
+    }
+
+    function memberAuthDoc() {
+      return get(/databases/$(database)/documents/memberAuth/$(request.auth.uid)).data;
+    }
+
+    function isMember() {
+      return signedIn()
+        && exists(/databases/$(database)/documents/memberAuth/$(request.auth.uid))
+        && memberAuthDoc().status == 'Aktif';
+    }
+
+    function isOwnMember(memberId) {
+      return isMember() && memberAuthDoc().memberId == memberId;
+    }
+
+    function shortStr(v, max) {
+      return v is string && v.size() <= max;
+    }
+
+    // Pengajuan jadwal milik member ini, sudah disetujui, dan belum diabsen sebelum batch ini
+    function validAttendance(reqId, memberId) {
+      let before = get(/databases/$(database)/documents/scheduleRequests/$(reqId)).data;
+      let after = getAfter(/databases/$(database)/documents/scheduleRequests/$(reqId)).data;
+      return before.memberId == memberId
+        && before.status in ['Disetujui', 'disetujui', 'approved']
+        && before.get('attended', false) == false
+        && after.get('attended', false) == true;
+    }
+
+    function onlyChanges(keys) {
+      return request.resource.data.diff(resource.data).affectedKeys().hasOnly(keys);
+    }
+
+    // ---------- Konten publik (dibaca semua, diubah admin) ----------
+    match /clubSettings/{id}       { allow read: if true; allow write: if isAdmin(); }
+    match /pricePackages/{id}      { allow read: if true; allow write: if isAdmin(); }
+    match /documentation/{id}      { allow read: if true; allow write: if isAdmin(); }
+    match /testimonials/{id}       { allow read: if true; allow write: if isAdmin(); }
+    match /swimGear/{id}           { allow read: if true; allow write: if isAdmin(); }
+    match /evaluationCriteria/{id} { allow read: if true; allow write: if isAdmin(); }
+    match /publicStats/{id}        { allow read: if true; allow write: if isAdmin(); }
+
+    // Jadwal: publik. Member hanya boleh menandai slot "hadir" (absen mandiri).
+    match /scheduleSlots/{id} {
+      allow read: if true;
+      allow write: if isAdmin();
+      allow update: if isMember()
+        && onlyChanges(['status'])
+        && resource.data.status == 'tersedia'
+        && request.resource.data.status == 'hadir';
+    }
+
+    // ---------- Data member ----------
+    match /members/{memberId} {
+      allow read: if isAdmin() || isOwnMember(memberId);
+      // Pendaftaran publik (Join Now): hanya dokumen baru, status awal Verifikasi
+      allow create: if isAdmin() || (
+        request.resource.data.id == memberId
+        && request.resource.data.status == 'Verifikasi'
+        && request.resource.data.attendedSessions == 0
+        && request.resource.data.keys().size() <= 40
+        && shortStr(request.resource.data.fullName, 120)
+        && shortStr(request.resource.data.whatsapp, 30)
+        && shortStr(request.resource.data.get('email', ''), 120)
+        && shortStr(request.resource.data.get('address', ''), 500)
+        && shortStr(request.resource.data.get('notes', ''), 1000)
+        && shortStr(request.resource.data.get('specialConditions', ''), 500)
+        && shortStr(request.resource.data.get('goal', ''), 500)
+        && request.resource.data.get('totalSessionsAllowed', 0) is int
+        && request.resource.data.get('totalSessionsAllowed', 0) <= 50
+      );
+      // Absen mandiri: +1 per pengajuan disetujui, tidak boleh melebihi kuota sesi
+      allow update: if isAdmin() || (
+        isOwnMember(memberId)
+        && onlyChanges(['attendedSessions', 'lastAttendanceRequestId'])
+        && request.resource.data.attendedSessions == resource.data.get('attendedSessions', 0) + 1
+        && request.resource.data.attendedSessions <= resource.data.get('totalSessionsAllowed', 0)
+        && validAttendance(request.resource.data.lastAttendanceRequestId, memberId)
+      );
+      allow delete: if isAdmin();
+    }
+
+    // Akun login member (berisi password; hanya admin)
+    match /memberAccounts/{accId} {
+      allow read, update, delete: if isAdmin();
+      // Akun otomatis saat pendaftaran publik: hanya untuk member baru di batch yang sama
+      allow create: if isAdmin() || (
+        request.resource.data.id == accId
+        && request.resource.data.memberId is string
+        && !exists(/databases/$(database)/documents/members/$(request.resource.data.memberId))
+        && getAfter(/databases/$(database)/documents/members/$(request.resource.data.memberId)).data.email.lower()
+             == request.resource.data.email
+        && request.resource.data.status == 'Aktif'
+        && !('authUid' in request.resource.data)
+      );
+    }
+
+    // Pemetaan uid Firebase Auth → member (ditulis admin saat sinkronisasi)
+    match /memberAuth/{uid} {
+      allow get: if signedIn() && request.auth.uid == uid;
+      allow read, write: if isAdmin();
+    }
+
+    match /scheduleRequests/{requestId} {
+      allow read: if isAdmin() || (isMember() && resource.data.memberId == memberAuthDoc().memberId);
+      // Member: pengajuan untuk dirinya sendiri.
+      // Tamu: hanya bersamaan dengan pendaftaran member baru (batch yang sama) → tidak bisa spam terpisah.
+      allow create: if isAdmin() || (
+        request.resource.data.id == requestId
+        && request.resource.data.status in ['pending', 'Pending']
+        && !('attended' in request.resource.data)
+        && request.resource.data.keys().size() <= 15
+        && shortStr(request.resource.data.memberName, 120)
+        && shortStr(request.resource.data.get('whatsapp', ''), 30)
+        && shortStr(request.resource.data.timeRange, 30)
+        && shortStr(request.resource.data.get('location', ''), 120)
+        && (
+          (isMember() && request.resource.data.memberId == memberAuthDoc().memberId)
+          || (
+            !exists(/databases/$(database)/documents/members/$(request.resource.data.memberId))
+            && existsAfter(/databases/$(database)/documents/members/$(request.resource.data.memberId))
+          )
+        )
+      );
+      allow update: if isAdmin() || (
+        isOwnMember(resource.data.memberId)
+        && resource.data.status in ['Disetujui', 'disetujui', 'approved']
+        && resource.data.get('attended', false) == false
+        && onlyChanges(['attended'])
+        && request.resource.data.attended == true
+      );
+      allow delete: if isAdmin();
+    }
+
+    match /memberReports/{reportId} {
+      allow read: if isAdmin() || (isMember() && resource.data.memberId == memberAuthDoc().memberId);
+      allow write: if isAdmin();
+    }
+
+    // ---------- Testimoni dari formulir publik (moderasi admin) ----------
+    match /testimonialSubmissions/{subId} {
+      allow read, delete: if isAdmin();
+      allow update: if false;
+      allow create: if request.resource.data.id == subId
+        && request.resource.data.keys().hasOnly(['id', 'name', 'role', 'quote', 'rating', 'createdAt'])
+        && request.resource.data.createdAt == request.time
+        && shortStr(request.resource.data.name, 80) && request.resource.data.name.size() > 0
+        && shortStr(request.resource.data.role, 80)
+        && shortStr(request.resource.data.quote, 600) && request.resource.data.quote.size() >= 10
+        && request.resource.data.rating is int
+        && request.resource.data.rating >= 1 && request.resource.data.rating <= 5;
+    }
+
+    // ---------- Riwayat login (hanya admin baca; tidak bisa diubah/dihapus siapa pun) ----------
+    match /loginLogs/{logId} {
+      allow read: if isAdmin();
+      allow update, delete: if false;
+      allow create: if request.resource.data.createdAt == request.time
+        && request.resource.data.keys().hasOnly(['uid', 'email', 'name', 'role', 'event', 'method', 'reason', 'device', 'createdAt'])
+        && request.resource.data.event in ['login', 'logout', 'auto_logout', 'login_failed']
+        && request.resource.data.role in ['admin', 'member', 'unknown']
+        && (request.resource.data.role != 'admin' || isAdmin())
+        && shortStr(request.resource.data.email, 120)
+        && shortStr(request.resource.data.get('name', ''), 120)
+        && shortStr(request.resource.data.get('reason', ''), 300)
+        && shortStr(request.resource.data.device, 120)
+        && (
+          // Pengguna login: hanya mencatat untuk dirinya sendiri
+          (signedIn()
+            && request.resource.data.get('uid', '') == request.auth.uid
+            && request.resource.data.email == request.auth.token.email.lower())
+          // Tamu: hanya catatan percobaan login gagal
+          || (!signedIn()
+            && request.resource.data.event == 'login_failed'
+            && !('uid' in request.resource.data))
+        );
+    }
+
+    // ---------- Status online (sinyal aktif; waktu dari server, tidak bisa dipalsukan) ----------
+    match /presence/{uid} {
+      allow read: if isAdmin();
+      allow create, update: if signedIn()
+        && request.auth.uid == uid
+        && request.resource.data.uid == uid
+        && request.resource.data.lastSeen == request.time
+        && request.resource.data.state in ['online', 'offline']
+        && request.resource.data.role in ['admin', 'member']
+        && (request.resource.data.role != 'admin' || isAdmin())
+        && request.resource.data.keys().hasOnly(['uid', 'email', 'name', 'role', 'memberId', 'state', 'lastSeen', 'device']);
+      allow delete: if isAdmin();
+    }
+
+    // ---------- Khusus admin ----------
+    match /clubInvoices/{id}       { allow read, write: if isAdmin(); }
+    match /attendanceRecords/{id}  { allow read, write: if isAdmin(); }
+    match /admins/{id}             { allow read, write: if isAdmin(); }
+    match /appMeta/{id}            { allow read, write: if isAdmin(); }
+
+    // Selain yang di atas: tolak
+    match /{document=**} {
+      allow read, write: if false;
+    }
+  }
+}
